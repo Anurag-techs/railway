@@ -43,8 +43,8 @@ export default function Dashboard() {
   }, [theme]);
 
   // Emergency conditions
-  const objectDetected = telemetry?.object_detected || telemetry?.object || 'NONE';
-  const hasObject = objectDetected.toUpperCase() !== 'NONE';
+  const objectDetected = String(telemetry?.object_detected || telemetry?.object || 'NONE');
+  const hasObject = (objectDetected || 'NONE').toUpperCase() !== 'NONE';
   const isStopState = telemetry?.train_state === 'STOP';
   const isUnsafeDistance = telemetry?.distance_safe === false;
 
@@ -86,10 +86,10 @@ export default function Dashboard() {
                 🚨 HIGH RISK
               </div>
               <div className="text-lg font-extrabold text-white leading-tight mt-0.5">
-                Stop Reason: <span className="text-red-200">{telemetry.stop_reason || 'Safety Condition Triggered'}</span>
+                Stop Reason: <span className="text-red-200">{telemetry?.stop_reason || 'Safety Condition Triggered'}</span>
               </div>
               <div className="text-xs text-red-300 font-semibold mt-1">
-                Active System Command: STOP SIGNAL DEPLOYED | Object: {objectDetected.toUpperCase()} | Distance Status: UNSAFE
+                Active System Command: STOP SIGNAL DEPLOYED | Object: {(objectDetected || 'NONE').toUpperCase()} | Distance Status: UNSAFE
               </div>
             </div>
           </div>

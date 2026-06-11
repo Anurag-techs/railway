@@ -52,14 +52,14 @@ export default function useTelemetry() {
         setTelemetry(data);
 
         // Process new event ticks based on timestamp change
-        const currentTimestamp = data.timestamp;
+        const currentTimestamp = data?.timestamp || '';
         if (currentTimestamp !== lastTimestampRef.current) {
           lastTimestampRef.current = currentTimestamp;
 
           // Standardize object detection check
-          const primaryObject = data.object_detected || data.object || 'NONE';
-          const hasObject = primaryObject.toUpperCase() !== 'NONE';
-          const isDangerState = data.train_state === 'STOP' || data.distance_safe === false || data.emergency_brake === true;
+          const primaryObject = String(data?.object_detected || data?.object || 'NONE');
+          const hasObject = (primaryObject || 'NONE').toUpperCase() !== 'NONE';
+          const isDangerState = data?.train_state === 'STOP' || data?.distance_safe === false || data?.emergency_brake === true;
 
           // Update summary metrics
           setStats(prev => ({
@@ -73,10 +73,10 @@ export default function useTelemetry() {
             id: currentTimestamp + Math.random(),
             timestamp: currentTimestamp,
             object: primaryObject,
-            distance: data.distance_cm,
+            distance: data?.distance_cm || 0,
             risk: isDangerState ? 'HIGH' : (hasObject ? 'MEDIUM' : 'LOW'),
-            decision: data.train_state,
-            stopReason: data.stop_reason || ''
+            decision: data?.train_state || 'UNKNOWN',
+            stopReason: data?.stop_reason || ''
           };
           
           setEvents(prev => {
@@ -85,26 +85,26 @@ export default function useTelemetry() {
           });
 
           // State change toasts
-          if (data.train_state === 'STOP') {
+          if (data?.train_state === 'STOP') {
             if (lastTrainStateRef.current !== 'STOP' || lastObjectRef.current !== primaryObject) {
-              triggerToast(`CRITICAL STOP: Train halted! Reason: ${data.stop_reason || 'Emergency Condition'}`, 'HIGH');
+              triggerToast(`CRITICAL STOP: Train halted! Reason: ${data?.stop_reason || 'Emergency Condition'}`, 'HIGH');
             }
           }
 
           if (hasObject && lastObjectRef.current !== primaryObject) {
-            triggerToast(`OBJECT DETECTED: "${primaryObject.toUpperCase()}" identified on railway path.`, 'MEDIUM');
+            triggerToast(`OBJECT DETECTED: "${(primaryObject || 'NONE').toUpperCase()}" identified on railway path.`, 'MEDIUM');
           }
 
-          if (data.distance_safe === false && lastDistanceSafeRef.current !== false) {
-            triggerToast(`SAFETY BREACH: Distance threshold exceeded! Range: ${data.distance_cm} cm`, 'HIGH');
-          } else if (data.distance_safe === true && lastDistanceSafeRef.current === false) {
+          if (data?.distance_safe === false && lastDistanceSafeRef.current !== false) {
+            triggerToast(`SAFETY BREACH: Distance threshold exceeded! Range: ${data?.distance_cm || 0} cm`, 'HIGH');
+          } else if (data?.distance_safe === true && lastDistanceSafeRef.current === false) {
             triggerToast("SYSTEM SECURED: Target cleared, distance safe.", 'LOW');
           }
 
           // Update tracking refs
-          lastTrainStateRef.current = data.train_state;
+          lastTrainStateRef.current = data?.train_state || '';
           lastObjectRef.current = primaryObject;
-          lastDistanceSafeRef.current = data.distance_safe;
+          lastDistanceSafeRef.current = data?.distance_safe !== false;
         }
       } catch (err) {
         failedPollsCountRef.current += 1;

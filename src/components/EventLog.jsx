@@ -31,7 +31,7 @@ export default function EventLog({ events = [], onClearLogs }) {
   };
 
   const getRiskBadge = (risk) => {
-    switch (risk.toUpperCase()) {
+    switch ((risk || 'LOW').toUpperCase()) {
       case 'HIGH':
         return (
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20">
@@ -63,7 +63,7 @@ export default function EventLog({ events = [], onClearLogs }) {
   };
 
   const getTrainStateBadge = (state) => {
-    switch (state.toUpperCase()) {
+    switch ((state || 'UNKNOWN').toUpperCase()) {
       case 'STOP':
         return <span className="text-red-450 bg-red-950/40 border border-red-500/30 px-2 py-0.5 rounded font-bold tracking-wider">STOP</span>;
       case 'RUN':
@@ -91,7 +91,7 @@ export default function EventLog({ events = [], onClearLogs }) {
   // Filter & Sort
   const filteredEvents = events.filter(e => {
     if (filterRisk === 'ALL') return true;
-    return e.risk.toUpperCase() === filterRisk;
+    return (e.risk || 'LOW').toUpperCase() === filterRisk;
   });
 
   const sortedEvents = [...filteredEvents].sort((a, b) => {

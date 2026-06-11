@@ -121,7 +121,7 @@ export default function CameraFeed({ telemetry = {}, isConnected }) {
       ctx.lineWidth = 5;
       const sleeperCount = 10;
       // If STOP state is active, halt sleepers movement
-      const speed = telemetry.train_state === 'STOP' ? 0 : 0.5;
+      const speed = telemetry?.train_state === 'STOP' ? 0 : 0.5;
       const offset = (frame * speed) % 1;
 
       for (let i = 0; i < sleeperCount; i++) {
@@ -166,7 +166,7 @@ export default function CameraFeed({ telemetry = {}, isConnected }) {
 
       // Scanning HUD Line
       const scanY = horizonY + (h - horizonY) * (0.5 + Math.sin(frame * 0.02) * 0.5);
-      ctx.strokeStyle = telemetry.train_state === 'STOP' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(59, 130, 246, 0.4)';
+      ctx.strokeStyle = telemetry?.train_state === 'STOP' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(59, 130, 246, 0.4)';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(0, scanY);
@@ -175,18 +175,18 @@ export default function CameraFeed({ telemetry = {}, isConnected }) {
       // Scan line shadow
       const scanGrad = ctx.createLinearGradient(0, scanY - 30, 0, scanY + 30);
       scanGrad.addColorStop(0, 'rgba(59, 130, 246, 0)');
-      scanGrad.addColorStop(0.5, telemetry.train_state === 'STOP' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(59, 130, 246, 0.15)');
+      scanGrad.addColorStop(0.5, telemetry?.train_state === 'STOP' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(59, 130, 246, 0.15)');
       scanGrad.addColorStop(1, 'rgba(59, 130, 246, 0)');
       ctx.fillStyle = scanGrad;
       ctx.fillRect(0, scanY - 30, w, 60);
 
       // AI Obstacle Drawing based on Telemetry
-      const objectDetected = telemetry.object_detected || telemetry.object || 'NONE';
-      const hasObject = objectDetected.toUpperCase() !== 'NONE';
+      const objectDetected = String(telemetry?.object_detected || telemetry?.object || 'NONE');
+      const hasObject = (objectDetected || 'NONE').toUpperCase() !== 'NONE';
 
       if (hasObject && isConnected) {
         const objectType = objectDetected;
-        const distance = telemetry.distance_cm || 0;
+        const distance = telemetry?.distance_cm || 0;
         
         // Scale coordinate positions based on distance in cm
         const maxDist = 150.0;
@@ -206,17 +206,17 @@ export default function CameraFeed({ telemetry = {}, isConnected }) {
         let color = '#ef4444'; // default red
         let fill = `rgba(239, 68, 68, ${0.1 + Math.abs(Math.sin(frame * 0.1)) * 0.15})`;
 
-        if (telemetry.distance_safe === true && telemetry.train_state !== 'STOP') {
+        if (telemetry?.distance_safe === true && telemetry?.train_state !== 'STOP') {
           color = '#10b981'; // green if safe
           fill = 'rgba(16, 185, 129, 0.05)';
-        } else if (telemetry.train_state === 'SLOW') {
+        } else if (telemetry?.train_state === 'SLOW') {
           color = '#eab308'; // yellow
           fill = 'rgba(234, 179, 8, 0.08)';
         }
 
         // Draw Bounding Box Corners
         ctx.strokeStyle = color;
-        ctx.lineWidth = 2 + (telemetry.train_state === 'STOP' ? 1.5 : 0);
+        ctx.lineWidth = 2 + (telemetry?.train_state === 'STOP' ? 1.5 : 0);
         
         const lineLen = Math.min(20, objW * 0.3);
         
@@ -251,7 +251,7 @@ export default function CameraFeed({ telemetry = {}, isConnected }) {
         // Bounding Box Label
         ctx.fillStyle = color;
         ctx.font = `bold ${Math.max(10, 12 * objectScale)}px monospace`;
-        const labelText = `${objectType.toUpperCase()} ${distance.toFixed(1)}cm`;
+        const labelText = `${(objectType || 'NONE').toUpperCase()} ${(distance || 0).toFixed(1)}cm`;
         const metrics = ctx.measureText(labelText);
         
         ctx.fillRect(boxX - 1, boxY - (18 * objectScale), metrics.width + 10, 18 * objectScale);
@@ -278,7 +278,7 @@ export default function CameraFeed({ telemetry = {}, isConnected }) {
         ctx.stroke();
 
         // Lock grid overlay during STOP state
-        if (telemetry.train_state === 'STOP') {
+        if (telemetry?.train_state === 'STOP') {
           ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
           ctx.beginPath();
           ctx.moveTo(0, boxY + objH / 2);
@@ -304,9 +304,9 @@ export default function CameraFeed({ telemetry = {}, isConnected }) {
       ctx.fillStyle = '#94a3b8'; // slate-400
       ctx.font = '11px monospace';
       ctx.fillText(`SOURCE: ${streamUrl ? 'LIVE IP CAMERA' : 'AI_SIMULATOR_01'}`, 25, 32);
-      ctx.fillText(`FRAME IDX: ${telemetry.frame_index || 0}`, 25, 48);
-      ctx.fillText(`ESP32 LINK: ${telemetry.esp32_status || 'DISCONNECTED'}`, 25, 64);
-      ctx.fillText(`TIMECODE: ${telemetry.timestamp || new Date().toLocaleTimeString()}`, 25, 80);
+      ctx.fillText(`FRAME IDX: ${telemetry?.frame_index || 0}`, 25, 48);
+      ctx.fillText(`ESP32 LINK: ${telemetry?.esp32_status || 'DISCONNECTED'}`, 25, 64);
+      ctx.fillText(`TIMECODE: ${telemetry?.timestamp || new Date().toLocaleTimeString()}`, 25, 80);
 
       // Red recording node on HUD
       ctx.fillStyle = '#ef4444';
@@ -333,11 +333,13 @@ export default function CameraFeed({ telemetry = {}, isConnected }) {
     };
   }, [isSimulating, telemetry, isConnected, streamUrl]);
 
+  const displayObject = String(telemetry?.object_detected || telemetry?.object || 'NONE');
+
   return (
     <div 
       ref={containerRef}
       className={`glass-heavy rounded-xl overflow-hidden shadow-2xl relative border flex flex-col group transition-all duration-500 ${
-        telemetry.train_state === 'STOP' && isConnected
+        telemetry?.train_state === 'STOP' && isConnected
           ? 'border-red-500 shadow-red-950/20'
           : 'border-slate-800'
       }`}
@@ -467,13 +469,13 @@ export default function CameraFeed({ telemetry = {}, isConnected }) {
             )}
             
             {/* AI Bounding box overlays */}
-            {streamUrl && !imageError && telemetry && (telemetry.object_detected || telemetry.object) && (telemetry.object_detected || telemetry.object).toUpperCase() !== 'NONE' && (
+            {streamUrl && !imageError && (displayObject || 'NONE').toUpperCase() !== 'NONE' && (
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                 <div className={`absolute top-4 right-4 flex items-center space-x-2 px-3 py-1 rounded bg-black/60 border text-xs font-mono font-bold ${
-                  telemetry.train_state === 'STOP' ? 'border-red-500 text-red-500 animate-pulse' : 'border-emerald-500 text-emerald-500'
+                  telemetry?.train_state === 'STOP' ? 'border-red-500 text-red-500 animate-pulse' : 'border-emerald-500 text-emerald-500'
                 }`}>
                   <ShieldAlert className="w-4 h-4" />
-                  <span>AI DETECT: {(telemetry.object_detected || telemetry.object).toUpperCase()}</span>
+                  <span>AI DETECT: {(displayObject || 'NONE').toUpperCase()}</span>
                 </div>
               </div>
             )}

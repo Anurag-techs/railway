@@ -17,28 +17,28 @@ import {
 export default function StatusCards({ telemetry = {}, isConnected }) {
   // Parse data fields with defaults matching the backend JSON schema
   const data = {
-    trainState: telemetry.train_state || 'UNKNOWN',
-    distanceCm: telemetry.distance_cm !== undefined ? telemetry.distance_cm : null,
-    detectionCount: telemetry.detection_count !== undefined ? telemetry.detection_count : 0,
-    objectDetected: telemetry.object_detected || telemetry.object || 'NONE',
-    trackStatus: telemetry.track_status || 'UNKNOWN',
-    esp32Status: telemetry.esp32_status || 'UNKNOWN',
-    cameraStatus: telemetry.camera_status || 'UNKNOWN',
-    stopReason: telemetry.stop_reason || '',
-    stopLatched: telemetry.stop_latched !== undefined ? telemetry.stop_latched : false,
-    detectionMax: telemetry.detection_max || 5,
-    trackMemory: telemetry.track_memory || 10,
-    distanceSafe: telemetry.distance_safe !== undefined ? telemetry.distance_safe : true,
-    distanceThresh: telemetry.distance_thresh !== undefined ? telemetry.distance_thresh : 70.0,
-    emergencyBrake: telemetry.emergency_brake !== undefined ? telemetry.emergency_brake : false,
-    frameIndex: telemetry.frame_index !== undefined ? telemetry.frame_index : 0,
-    timestamp: telemetry.timestamp || ''
+    trainState: telemetry?.train_state || 'UNKNOWN',
+    distanceCm: telemetry?.distance_cm !== undefined ? telemetry.distance_cm : null,
+    detectionCount: telemetry?.detection_count !== undefined ? telemetry.detection_count : 0,
+    objectDetected: telemetry?.object_detected || telemetry?.object || 'NONE',
+    trackStatus: telemetry?.track_status || 'UNKNOWN',
+    esp32Status: telemetry?.esp32_status || 'UNKNOWN',
+    cameraStatus: telemetry?.camera_status || 'UNKNOWN',
+    stopReason: telemetry?.stop_reason || '',
+    stopLatched: telemetry?.stop_latched !== undefined ? telemetry.stop_latched : false,
+    detectionMax: telemetry?.detection_max || 5,
+    trackMemory: telemetry?.track_memory || 10,
+    distanceSafe: telemetry?.distance_safe !== undefined ? telemetry.distance_safe : true,
+    distanceThresh: telemetry?.distance_thresh !== undefined ? telemetry.distance_thresh : 70.0,
+    emergencyBrake: telemetry?.emergency_brake !== undefined ? telemetry.emergency_brake : false,
+    frameIndex: telemetry?.frame_index !== undefined ? telemetry.frame_index : 0,
+    timestamp: telemetry?.timestamp || ''
   };
 
   // Status coloring utility
   const getStatusStyle = (val, type = '') => {
     if (!isConnected) return 'text-slate-500 bg-slate-900/40 border-slate-800/80';
-    const normalized = String(val).toUpperCase();
+    const normalized = String(val || 'UNKNOWN').toUpperCase();
 
     // Red condition lists
     if (

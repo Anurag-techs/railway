@@ -37,7 +37,7 @@ export default function SystemStats({
       let wavePeriod = 60; // frames per beat
       let strokeColor = '#10b981'; // green (normal)
 
-      const isDangerState = telemetry.train_state === 'STOP' || telemetry.distance_safe === false || telemetry.emergency_brake === true;
+      const isDangerState = telemetry?.train_state === 'STOP' || telemetry?.distance_safe === false || telemetry?.emergency_brake === true;
 
       if (!isConnected) {
         amplitude = 0;
@@ -46,7 +46,7 @@ export default function SystemStats({
         amplitude = height * 0.45;
         wavePeriod = 20; // rapid heart rate
         strokeColor = '#ef4444'; // red
-      } else if (telemetry.train_state === 'SLOW') {
+      } else if (telemetry?.train_state === 'SLOW') {
         amplitude = height * 0.35;
         wavePeriod = 35; // moderate rhythm
         strokeColor = '#f59e0b'; // amber
@@ -185,7 +185,7 @@ export default function SystemStats({
         <div className="flex justify-between items-center">
           <span>Process Latency:</span>
           <span className="font-mono text-slate-200">
-            {isConnected ? (telemetry.train_state === 'STOP' ? '11ms (CRITICAL)' : '16ms') : 'N/A'}
+            {isConnected ? (telemetry?.train_state === 'STOP' ? '11ms (CRITICAL)' : '16ms') : 'N/A'}
           </span>
         </div>
         <div className="flex justify-between items-center">
