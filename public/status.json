@@ -1,0 +1,9 @@
+{
+  "risk": "HIGH",
+  "object": "debris",
+  "distance": 4.2,
+  "confidence": 0.94,
+  "decision": "STOP",
+  "camera_status": true,
+  "timestamp": "2026-06-11T18:17:31.373Z"
+}
